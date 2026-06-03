@@ -1,5 +1,6 @@
 import { Redis } from '@upstash/redis';
 const redis = Redis.fromEnv();
+import { randomUUID } from 'crypto';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,7 +12,9 @@ export default async function handler(req, res) {
   const correctPwd = process.env.LOGIN_PWD;
 
   if (username === correctUser && password === correctPwd) {
-    return res.json({ success: true });
+    const token = randomUUID();
+    await redis.set(`login:${token}`, 'ok', { ex: 604800 });
+    return res.json({ success: true, token });
   }
 
   return res.json({ success: false });
