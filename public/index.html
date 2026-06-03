@@ -168,6 +168,7 @@
 
 <script>
     let stunData = {};
+    const API_TOKEN = process.env.API_TOKEN || "";
 
     function checkAuth() {
         if (localStorage.getItem("nas_auth") === "ok") {
@@ -218,7 +219,10 @@
         try {
             const res = await fetch("/api/update-stun", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": API_TOKEN
+                },
                 body: JSON.stringify({ key, value })
             });
             const d = await res.json();
@@ -288,7 +292,10 @@
                 const key = b.closest(".card").dataset.key;
                 await fetch("/api/delete-stun", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": API_TOKEN
+                    },
                     body: JSON.stringify({ key })
                 });
                 showToast("删除成功");
