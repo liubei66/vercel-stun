@@ -1,21 +1,26 @@
 import { Redis } from '@upstash/redis';
+import { NextResponse } from 'next/server';
 
-const redis = Redis.fromEnv();
+redis = Redis.fromEnv();
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ success: false });
+export async function POST(request) {
+  try {
+    const token = request.headers.get('authorization');
+    if (!token || token !== process.env.API_TOKEN) {
+      return NextResponse.json({ success: false }, { status: 401 });
+    }
 
-  const token = req.headers.authorization;
-  if (!token || token !== process.env.API_TOKEN) {
-    return res.status(401).json({ success: false });
+    const { key } = await request.json();
+    if (!key) {
+      return NextResponse.json({ success: false }, { status: 400 });
+    }
+
+    const map = await redis.get('stun_map') || {};
+    delete map[key];
+    await redis.set('stun_map', map);
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ success: false }, { status: 500 });
   }
-
-  const { key } = req.body;
-  if (!key) return res.status(400).json({ success: false });
-
-  const map = await redis.get('stun_map') || {};
-  delete map[key];
-  await redis.set('stun_map', map);
-
-  return res.json({ success: true });
 }
