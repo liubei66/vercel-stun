@@ -11,74 +11,60 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
             background: #f8fafc;
             padding: 2rem 1rem;
             max-width: 1000px;
             margin: 0 auto;
         }
-
         .header {
             text-align: center;
             margin-bottom: 2.5rem;
             color: #1e293b;
         }
-
         .header h1 {
             font-size: 2rem;
-            margin-bottom: 0.5rem;
         }
-
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.2rem;
         }
-
         .card {
-            background: #ffffff;
+            background: #fff;
             border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s;
             position: relative;
         }
-
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
-
         .card-tag {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #1e293b;
             margin-bottom: 1rem;
         }
-
         .card-address {
             padding: 0.8rem 1rem;
             background: #f1f5f9;
             border-radius: 10px;
-            color: #334155;
             font-family: monospace;
             word-break: break-all;
             margin-bottom: 1rem;
             display: none;
         }
-
         .card-address.show {
             display: block;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s;
         }
-
         .btn-group {
             display: flex;
             gap: 0.6rem;
         }
-
         button {
             flex: 1;
             padding: 0.6rem 0;
@@ -86,66 +72,40 @@
             border: none;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s ease;
             font-size: 0.9rem;
         }
-
         .btn-toggle {
             background: #e2e8f0;
-            color: #334155;
         }
-
-        .btn-toggle:hover {
-            background: #cbd5e1;
-        }
-
         .btn-copy {
             background: #3b82f6;
             color: white;
         }
-
-        .btn-copy:hover {
-            background: #2563eb;
-        }
-
         .btn-copy.copied {
             background: #10b981;
         }
-
         .btn-delete {
             position: absolute;
             top: 12px;
             right: 12px;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #fee2e2;
             color: #ef4444;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
             border: none;
+            cursor: pointer;
         }
-
-        .btn-delete:hover {
-            background: #fecaca;
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .empty {
             text-align: center;
             padding: 3rem 1rem;
             color: #64748b;
-            grid-column: 1 / -1;
+            grid-column: 1/-1;
         }
-
         .toast {
             position: fixed;
             bottom: 30px;
@@ -157,128 +117,109 @@
             border-radius: 8px;
             font-size: 14px;
             opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            transition: 0.3s;
         }
-
         .toast.show {
             opacity: 1;
         }
     </style>
 </head>
-
 <body>
     <div class="header">
         <h1>PJK-NAS</h1>
     </div>
-
     <div class="card-grid" id="cardGrid"></div>
     <div class="toast" id="toast"></div>
 
     <script>
         let stunData = {};
+        const API_TOKEN = ""; // 前端不用填，仅API鉴权
 
-        // 加载数据
-        async function loadFromKV() {
+        async function loadData() {
             const container = document.getElementById('cardGrid');
             try {
-                const res = await fetch('/api/get-stun');
+                const res = await fetch("/api/get-stun");
                 const data = await res.json();
                 stunData = data.data || {};
-                renderCards(stunData);
-            } catch (err) {
-                container.innerHTML = '<div class="empty">加载失败</div>';
+                render();
+            } catch (e) {
+                container.innerHTML = "<div class='empty'>加载失败</div>";
             }
         }
 
-        // 渲染卡片
-        function renderCards(data) {
+        function render() {
             const container = document.getElementById('cardGrid');
-            const keys = Object.keys(data);
-
-            if (keys.length === 0) {
-                container.innerHTML = '<div class="empty">暂无数据</div>';
+            const keys = Object.keys(stunData);
+            if (!keys.length) {
+                container.innerHTML = "<div class='empty'>暂无数据</div>";
                 return;
             }
-
-            let html = '';
-            keys.forEach(tag => {
-                const addr = data[tag];
+            let html = "";
+            keys.forEach(k => {
                 html += `
-                <div class="card" data-key="${tag}">
-                    <button class="btn-delete">×</button>
-                    <div class="card-tag">${tag}</div>
-                    <div class="card-address">${addr}</div>
-                    <div class="btn-group">
-                        <button class="btn-toggle">显示地址</button>
-                        <button class="btn-copy" data-addr="${addr}">复制地址</button>
+                <div class='card' data-key='${k}'>
+                    <button class='btn-delete'>×</button>
+                    <div class='card-tag'>${k}</div>
+                    <div class='card-address'>${stunData[k]}</div>
+                    <div class='btn-group'>
+                        <button class='btn-toggle'>显示地址</button>
+                        <button class='btn-copy' data-addr='${stunData[k]}'>复制地址</button>
                     </div>
-                </div>
-                `;
+                </div>`;
             });
-
             container.innerHTML = html;
             bindEvents();
         }
 
-        // 事件
         function bindEvents() {
-            // 显示/隐藏
-            document.querySelectorAll('.btn-toggle').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const addr = btn.closest('.card').querySelector('.card-address');
-                    addr.classList.toggle('show');
-                    btn.textContent = addr.classList.contains('show') ? '隐藏地址' : '显示地址';
+            document.querySelectorAll(".btn-toggle").forEach(b => {
+                b.addEventListener("click", () => {
+                    const addr = b.closest(".card").querySelector(".card-address");
+                    addr.classList.toggle("show");
+                    b.textContent = addr.classList.contains("show") ? "隐藏地址" : "显示地址";
                 });
             });
 
-            // 复制
-            document.querySelectorAll('.btn-copy').forEach(btn => {
-                btn.addEventListener('click', async e => {
-                    const addr = btn.dataset.addr;
+            document.querySelectorAll(".btn-copy").forEach(b => {
+                b.addEventListener("click", async e => {
+                    const addr = e.target.dataset.addr;
                     await navigator.clipboard.writeText(addr);
-                    btn.textContent = '✅ 已复制';
-                    btn.classList.add('copied');
+                    e.target.textContent = "✅ 已复制";
+                    e.target.classList.add("copied");
                     setTimeout(() => {
-                        btn.textContent = '复制地址';
-                        btn.classList.remove('copied');
+                        e.target.textContent = "复制地址";
+                        e.target.classList.remove("copied");
                     }, 1500);
                 });
             });
 
-            // 删除
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const card = btn.closest('.card');
-                    const key = card.dataset.key;
-                    if (!confirm('确定要删除该项吗？')) return;
-
-                    const res = await fetch('/api/delete-stun', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key })
-                    });
-
-                    const result = await res.json();
-                    if (result.success) {
-                        showToast('删除成功');
-                        loadFromKV();
-                    } else {
-                        showToast('删除失败');
+            document.querySelectorAll(".btn-delete").forEach(b => {
+                b.addEventListener("click", async () => {
+                    const key = b.closest(".card").dataset.key;
+                    if (!confirm("确定删除？")) return;
+                    try {
+                        await fetch("/api/delete-stun", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ key })
+                        });
+                        showToast("删除成功");
+                        loadData();
+                    } catch (e) {
+                        showToast("操作失败");
                     }
                 });
             });
         }
 
-        // 提示
         function showToast(msg) {
-            const t = document.getElementById('toast');
+            const t = document.getElementById("toast");
             t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 1800);
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 1800);
         }
 
-        window.addEventListener('DOMContentLoaded', loadFromKV);
+        window.addEventListener("DOMContentLoaded", loadData);
     </script>
 </body>
 </html>
