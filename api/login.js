@@ -1,12 +1,12 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ success: false });
+import { NextResponse } from 'next/server';
 
-  const { username, password } = req.body;
+export async function POST(request) {
+  const { username, password } = await request.json();
   const validUser = process.env.ADMIN_USER;
   const validPwd = process.env.ADMIN_PWD;
 
   if (username === validUser && password === validPwd) {
-    return res.json({ success: true });
+    return NextResponse.json({ success: true });
   }
-  return res.json({ success: false });
+  return NextResponse.json({ success: false });
 }
