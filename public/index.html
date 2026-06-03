@@ -106,6 +106,7 @@
             background: #f1f5f9;
             border-radius: 10px;
             display: none;
+            word-break: break-all;
         }
         .card-address.show { display: block; }
         .btn-group { display: flex; gap: 0.6rem; }
@@ -126,6 +127,9 @@
             background: #fee2e2;
             color: #ef4444;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .toast {
             position: fixed; bottom:30px; left:50%;
@@ -133,6 +137,7 @@
             background:#111827; color:white;
             padding:10px 18px; border-radius:8px;
             opacity:0; transition:0.3s;
+            z-index: 999;
         }
         .toast.show { opacity:1; }
     </style>
@@ -148,8 +153,8 @@
 
 <div id="app">
     <div class="header">
-        <h1>PJK-NAS</h1>
-        <span class="logout" onclick="logout()">退出</span>
+        <h1>PJK-NAS 管理</h1>
+        <span class="logout" onclick="logout()">退出登录</span>
     </div>
     <div class="add-form">
         <input id="newKey" placeholder="名称：家庭NAS">
@@ -163,10 +168,9 @@
 
 <script>
     let stunData = {};
-    const API_TOKEN = "你的API_TOKEN";
 
     function checkAuth() {
-        if (localStorage.getItem("auth") === "ok") {
+        if (localStorage.getItem("nas_auth") === "ok") {
             document.getElementById("loginPanel").style.display = "none";
             document.getElementById("app").style.display = "block";
             loadData();
@@ -177,54 +181,67 @@
     }
 
     async function tryLogin() {
-        const u = document.getElementById("user").value;
-        const p = document.getElementById("pwd").value;
-        const res = await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: u, password: p })
-        });
-        const data = await res.json();
-        if (data.success) {
-            localStorage.setItem("auth", "ok");
-            checkAuth();
-        } else {
-            showToast("账号密码错误");
+        const u = document.getElementById("user").value.trim();
+        const p = document.getElementById("pwd").value.trim();
+        if (!u || !p) return showToast("请输入账号密码");
+
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem("nas_auth", "ok");
+                showToast("登录成功");
+                setTimeout(checkAuth, 600);
+            } else {
+                showToast("账号或密码错误");
+            }
+        } catch (e) {
+            showToast("网络异常");
         }
     }
 
     function logout() {
-        localStorage.removeItem("auth");
-        checkAuth();
+        localStorage.removeItem("nas_auth");
+        showToast("已退出");
+        setTimeout(checkAuth, 600);
     }
 
     async function addItem() {
         const key = document.getElementById("newKey").value.trim();
         const value = document.getElementById("newVal").value.trim();
-        if (!key || !value) return showToast("不能为空");
+        if (!key || !value) return showToast("名称和地址不能为空");
 
-        const res = await fetch("/api/update-stun", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": API_TOKEN
-            },
-            body: JSON.stringify({ key, value })
-        });
-        const d = await res.json();
-        if (d.success) {
-            showToast("添加成功");
-            document.getElementById("newKey").value = "";
-            document.getElementById("newVal").value = "";
-            loadData();
+        try {
+            const res = await fetch("/api/update-stun", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key, value })
+            });
+            const d = await res.json();
+            if (d.success) {
+                showToast("添加成功");
+                document.getElementById("newKey").value = "";
+                document.getElementById("newVal").value = "";
+                loadData();
+            }
+        } catch (e) {
+            showToast("保存失败");
         }
     }
 
     async function loadData() {
-        const r = await fetch("/api/get-stun");
-        const d = await r.json();
-        stunData = d.data || {};
-        render();
+        try {
+            const r = await fetch("/api/get-stun");
+            const d = await r.json();
+            stunData = d.data || {};
+            render();
+        } catch (e) {
+            showToast("加载失败");
+        }
     }
 
     function render() {
@@ -242,11 +259,11 @@
                 </div>
             </div>`;
         });
-        el.innerHTML = html;
-        bind();
+        el.innerHTML = html || "<div style='grid-column:1/-1;text-align:center;padding:2rem;color:#888'>暂无记录</div>";
+        bindEvents();
     }
 
-    function bind() {
+    function bindEvents() {
         document.querySelectorAll(".btn-toggle").forEach(b => {
             b.onclick = () => {
                 const a = b.closest(".card").querySelector(".card-address");
@@ -254,25 +271,27 @@
                 b.textContent = a.classList.contains("show") ? "隐藏" : "显示";
             };
         });
+
         document.querySelectorAll(".btn-copy").forEach(b => {
-            b.onclick = async e => {
-                await navigator.clipboard.writeText(e.target.dataset.addr);
-                b.textContent = "✅ 已复制";
-                setTimeout(() => b.textContent = "复制", 1500);
+            b.onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(b.dataset.addr);
+                    b.textContent = "✅ 已复制";
+                    setTimeout(() => b.textContent = "复制", 1500);
+                } catch { showToast("复制失败"); }
             };
         });
+
         document.querySelectorAll(".btn-delete").forEach(b => {
             b.onclick = async () => {
-                const key = b.closest(".card").dataset.key;
                 if (!confirm("确定删除？")) return;
+                const key = b.closest(".card").dataset.key;
                 await fetch("/api/delete-stun", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": API_TOKEN
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ key })
                 });
+                showToast("删除成功");
                 loadData();
             };
         });
