@@ -11,43 +11,104 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         body {
             background: #f8fafc;
             padding: 2rem 1rem;
             max-width: 1000px;
             margin: 0 auto;
         }
+
+        .login-box {
+            max-width: 380px;
+            margin: 5rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #2563eb;
+        }
+
+        #app {
+            display: none;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 2.5rem;
             color: #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
         .header h1 {
             font-size: 2rem;
+            margin: 0 auto;
         }
+
+        .logout {
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.2rem;
         }
+
         .card {
-            background: #fff;
+            background: white;
             border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
             border: 1px solid #e2e8f0;
             transition: all 0.2s;
             position: relative;
         }
+
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
+
         .card-tag {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 1rem;
         }
+
         .card-address {
             padding: 0.8rem 1rem;
             background: #f1f5f9;
@@ -57,14 +118,17 @@
             margin-bottom: 1rem;
             display: none;
         }
+
         .card-address.show {
             display: block;
             animation: fadeIn 0.3s;
         }
+
         .btn-group {
             display: flex;
             gap: 0.6rem;
         }
+
         button {
             flex: 1;
             padding: 0.6rem 0;
@@ -74,16 +138,20 @@
             cursor: pointer;
             font-size: 0.9rem;
         }
+
         .btn-toggle {
             background: #e2e8f0;
         }
+
         .btn-copy {
             background: #3b82f6;
             color: white;
         }
+
         .btn-copy.copied {
             background: #10b981;
         }
+
         .btn-delete {
             position: absolute;
             top: 12px;
@@ -96,16 +164,19 @@
             border: none;
             cursor: pointer;
         }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .empty {
             text-align: center;
             padding: 3rem 1rem;
             color: #64748b;
             grid-column: 1/-1;
         }
+
         .toast {
             position: fixed;
             bottom: 30px;
@@ -118,42 +189,96 @@
             font-size: 14px;
             opacity: 0;
             transition: 0.3s;
+            pointer-events: none;
         }
+
         .toast.show {
             opacity: 1;
         }
     </style>
 </head>
+
 <body>
-    <div class="header">
-        <h1>PJK-NAS</h1>
+
+    <div id="loginPanel" class="login-box">
+        <h2>登录 PJK-NAS</h2>
+        <input class="login-input" id="user" placeholder="用户名" />
+        <input class="login-input" id="pwd" type="password" placeholder="密码" />
+        <button class="login-btn" onclick="tryLogin()">登录</button>
     </div>
-    <div class="card-grid" id="cardGrid"></div>
+
+    <div id="app">
+        <div class="header">
+            <h1>PJK-NAS</h1>
+            <span class="logout" onclick="logout()">退出登录</span>
+        </div>
+        <div class="card-grid" id="cardGrid"></div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
         let stunData = {};
-        const API_TOKEN = ""; // 前端不用填，仅API鉴权
 
+        // 检查本地登录状态
+        function checkAuth() {
+            if (localStorage.getItem("auth") === "ok") {
+                document.getElementById("loginPanel").style.display = "none";
+                document.getElementById("app").style.display = "block";
+                loadData();
+            } else {
+                document.getElementById("loginPanel").style.display = "block";
+                document.getElementById("app").style.display = "none";
+            }
+        }
+
+        // 登录（请求后端验证环境变量）
+        async function tryLogin() {
+            const u = document.getElementById("user").value;
+            const p = document.getElementById("pwd").value;
+
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: u, password: p })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem("auth", "ok");
+                checkAuth();
+            } else {
+                showToast("用户名或密码错误");
+            }
+        }
+
+        // 退出
+        function logout() {
+            localStorage.removeItem("auth");
+            checkAuth();
+        }
+
+        // 加载数据
         async function loadData() {
-            const container = document.getElementById('cardGrid');
+            const el = document.getElementById("cardGrid");
             try {
-                const res = await fetch("/api/get-stun");
-                const data = await res.json();
-                stunData = data.data || {};
+                const r = await fetch("/api/get-stun");
+                const d = await r.json();
+                stunData = d.data || {};
                 render();
             } catch (e) {
-                container.innerHTML = "<div class='empty'>加载失败</div>";
+                el.innerHTML = "<div class='empty'>加载失败</div>";
             }
         }
 
         function render() {
-            const container = document.getElementById('cardGrid');
+            const el = document.getElementById("cardGrid");
             const keys = Object.keys(stunData);
             if (!keys.length) {
-                container.innerHTML = "<div class='empty'>暂无数据</div>";
+                el.innerHTML = "<div class='empty'>暂无数据</div>";
                 return;
             }
+
             let html = "";
             keys.forEach(k => {
                 html += `
@@ -167,48 +292,49 @@
                     </div>
                 </div>`;
             });
-            container.innerHTML = html;
+            el.innerHTML = html;
             bindEvents();
         }
 
         function bindEvents() {
             document.querySelectorAll(".btn-toggle").forEach(b => {
-                b.addEventListener("click", () => {
+                b.onclick = () => {
                     const addr = b.closest(".card").querySelector(".card-address");
                     addr.classList.toggle("show");
                     b.textContent = addr.classList.contains("show") ? "隐藏地址" : "显示地址";
-                });
+                };
             });
 
             document.querySelectorAll(".btn-copy").forEach(b => {
-                b.addEventListener("click", async e => {
-                    const addr = e.target.dataset.addr;
-                    await navigator.clipboard.writeText(addr);
-                    e.target.textContent = "✅ 已复制";
-                    e.target.classList.add("copied");
+                b.onclick = async e => {
+                    await navigator.clipboard.writeText(e.target.dataset.addr);
+                    b.textContent = "✅ 已复制";
+                    b.classList.add("copied");
                     setTimeout(() => {
-                        e.target.textContent = "复制地址";
-                        e.target.classList.remove("copied");
+                        b.textContent = "复制地址";
+                        b.classList.remove("copied");
                     }, 1500);
-                });
+                };
             });
 
             document.querySelectorAll(".btn-delete").forEach(b => {
-                b.addEventListener("click", async () => {
+                b.onclick = async () => {
                     const key = b.closest(".card").dataset.key;
                     if (!confirm("确定删除？")) return;
-                    try {
-                        await fetch("/api/delete-stun", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ key })
-                        });
+
+                    const r = await fetch("/api/delete-stun", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ key })
+                    });
+                    const d = await r.json();
+                    if (d.success) {
                         showToast("删除成功");
                         loadData();
-                    } catch (e) {
-                        showToast("操作失败");
+                    } else {
+                        showToast("删除失败");
                     }
-                });
+                };
             });
         }
 
@@ -219,7 +345,7 @@
             setTimeout(() => t.classList.remove("show"), 1800);
         }
 
-        window.addEventListener("DOMContentLoaded", loadData);
+        checkAuth();
     </script>
 </body>
 </html>
