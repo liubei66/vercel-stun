@@ -168,7 +168,11 @@
 
 <script>
     let stunData = {};
-    const API_TOKEN = process.env.API_TOKEN || "";
+
+    // 获取登录 token
+    function getToken() {
+        return localStorage.getItem("nas_token") || "";
+    }
 
     function checkAuth() {
         if (localStorage.getItem("nas_auth") === "ok") {
@@ -193,8 +197,9 @@
                 body: JSON.stringify({ username: u, password: p })
             });
             const data = await res.json();
-            if (data.success) {
+            if (data.success && data.token) {
                 localStorage.setItem("nas_auth", "ok");
+                localStorage.setItem("nas_token", data.token);
                 showToast("登录成功");
                 setTimeout(checkAuth, 600);
             } else {
@@ -207,6 +212,7 @@
 
     function logout() {
         localStorage.removeItem("nas_auth");
+        localStorage.removeItem("nas_token");
         showToast("已退出");
         setTimeout(checkAuth, 600);
     }
@@ -221,7 +227,7 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": API_TOKEN
+                    "Authorization": getToken()
                 },
                 body: JSON.stringify({ key, value })
             });
@@ -231,6 +237,8 @@
                 document.getElementById("newKey").value = "";
                 document.getElementById("newVal").value = "";
                 loadData();
+            } else {
+                showToast(d.msg || "操作失败");
             }
         } catch (e) {
             showToast("保存失败");
@@ -239,8 +247,14 @@
 
     async function loadData() {
         try {
-            const r = await fetch("/api/get-stun");
+            const r = await fetch("/api/get-stun", {
+                headers: { "Authorization": getToken() }
+            });
             const d = await r.json();
+            if (!d.success) {
+                logout();
+                return;
+            }
             stunData = d.data || {};
             render();
         } catch (e) {
@@ -290,16 +304,20 @@
             b.onclick = async () => {
                 if (!confirm("确定删除？")) return;
                 const key = b.closest(".card").dataset.key;
-                await fetch("/api/delete-stun", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": API_TOKEN
-                    },
-                    body: JSON.stringify({ key })
-                });
-                showToast("删除成功");
-                loadData();
+                try {
+                    await fetch("/api/delete-stun", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": getToken()
+                        },
+                        body: JSON.stringify({ key })
+                    });
+                    showToast("删除成功");
+                    loadData();
+                } catch (e) {
+                    showToast("删除失败");
+                }
             };
         });
     }
