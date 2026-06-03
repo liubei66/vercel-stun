@@ -1,9 +1,13 @@
 import { Redis } from '@upstash/redis';
+import { NextResponse } from 'next/server';
 
 const redis = Redis.fromEnv();
 
-export default async function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).json({ success: false });
-  const data = await redis.get('stun_map') || {};
-  return res.json({ success: true, data });
+export async function GET() {
+  try {
+    const data = await redis.get('stun_map') || {};
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
 }
