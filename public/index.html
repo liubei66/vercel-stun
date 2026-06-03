@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PJK-NAS</title>
+    <title>PJK-NAS 管理面板</title>
     <style>
         * {
             margin: 0;
@@ -37,11 +37,11 @@
             border: 1px solid #e2e8f0;
             border-radius: 10px;
             font-size: 1rem;
-            transition: border .2s;
+            transition: border 0.24s;
         }
         .login-input:focus {
             outline: none;
-            border-color:#3b82f6;
+            border-color: #3b82f6;
         }
         .login-btn {
             width: 100%;
@@ -52,9 +52,9 @@
             border-radius: 10px;
             font-size: 1rem;
             cursor: pointer;
-            transition: opacity .2s;
+            transition: opacity .24s ease;
         }
-        .login-btn:hover{opacity:0.9}
+        .login-btn:hover { opacity: 0.9 }
         #app { display: none; }
         .header {
             display: flex;
@@ -78,6 +78,11 @@
             border:1px solid #e2e8f0;
             border-radius:10px;
             font-size:14px;
+            transition: border 0.24s;
+        }
+        .search-input:focus{
+            outline: none;
+            border-color:#3b82f6;
         }
         .export-btn{
             padding:0 16px;
@@ -86,7 +91,7 @@
             border:none;
             border-radius:10px;
             cursor:pointer;
-            transition:opacity .2s;
+            transition:opacity .24s ease;
         }
         .export-btn:hover{opacity:0.9}
         .add-form {
@@ -105,6 +110,11 @@
             padding:0.7rem;
             border:1px solid #e2e8f0;
             border-radius:10px;
+            transition: border 0.24s;
+        }
+        .add-form input:focus{
+            outline: none;
+            border-color:#3b82f6;
         }
         .add-btn {
             padding:0 1.5rem;
@@ -113,7 +123,7 @@
             border:none;
             border-radius:10px;
             cursor:pointer;
-            transition:opacity .2s;
+            transition:opacity .24s ease;
         }
         .add-btn:hover{opacity:0.9}
         .card-grid {
@@ -127,11 +137,11 @@
             padding: 1.5rem;
             box-shadow: 0 3px 12px rgba(0,0,0,0.06);
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.32s cubic-bezier(0.2,0,0.2,1);
         }
         .card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 26px rgba(0,0,0,0.13);
         }
         .card-tag {
             font-size: 1.1rem;
@@ -140,17 +150,20 @@
             color:#1e293b;
         }
         .card-address {
-            padding: 0.8rem 1rem;
             background: #f1f5f9;
             border-radius: 12px;
-            max-height:0;
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
             overflow:hidden;
             word-break: break-all;
-            transition: max-height 0.35s ease;
-            margin-bottom:1rem;
+            transition: max-height 0.38s ease, opacity 0.32s ease, padding 0.32s ease;
+            margin-bottom: 1rem;
         }
         .card-address.show {
-            max-height:300px;
+            max-height: 320px;
+            opacity: 1;
+            padding: 0.8rem 1rem;
         }
         .btn-group { display: flex; gap: 0.55rem; }
         button {
@@ -159,9 +172,10 @@
             border-radius: 10px;
             border: none;
             cursor: pointer;
-            transition: opacity .2s;
+            transition: all .22s ease;
+            font-size: 14px;
         }
-        button:hover{opacity:0.88}
+        button:hover{opacity:0.88; transform: scale(0.97);}
         .btn-toggle { background: #e2e8f0; color:#333; }
         .btn-go { background: #10b981; color: #fff; }
         .btn-copy { background: #3b82f6; color: white; }
@@ -177,18 +191,20 @@
             align-items: center;
             justify-content: center;
             padding:0;
+            font-size: 16px;
         }
         .toast {
             position: fixed; bottom:30px; left:50%;
             transform:translateX(-50%);
             background:#111827; color:white;
             padding:10px 20px; border-radius:10px;
-            opacity:0; transition:0.3s;
+            opacity:0; transition:0.3s ease;
             z-index: 999;
         }
         .toast.show { opacity:1; }
     </style>
 </head>
+
 <body>
 
 <div id="loginPanel" class="login-box">
@@ -203,15 +219,18 @@
         <h1>PJK-NAS 管理面板</h1>
         <span class="logout" onclick="logout()">退出登录</span>
     </div>
+
     <div class="top-bar">
         <input class="search-input" id="searchKey" placeholder="搜索名称，实时筛选卡片" oninput="filterCard()">
         <button class="export-btn" onclick="exportJson()">导出全部JSON</button>
     </div>
+
     <div class="add-form">
         <input id="newKey" placeholder="名称：家庭NAS">
         <input id="newVal" placeholder="STUN/URL地址">
         <button class="add-btn" onclick="addItem()">新增保存</button>
     </div>
+
     <div class="card-grid" id="cardGrid"></div>
 </div>
 
@@ -221,12 +240,10 @@
     let stunData = {};
     let rawData = {};
 
-    // 获取登录 token
     function getToken() {
         return localStorage.getItem("nas_token") || "";
     }
 
-    // URL校验
     function isValidUrl(string) {
         try {
             const url = new URL(string);
@@ -236,25 +253,18 @@
         }
     }
 
-    // 访问按钮逻辑
     function goToAddress(addr) {
-        if (!addr) {
-            showToast("地址为空");
-            return;
-        }
+        if (!addr) return showToast("地址为空");
         if (isValidUrl(addr)) {
             window.open(addr, "_blank");
         } else {
-            showToast("非http/https有效链接，无法访问");
+            showToast("非有效 URL，无法访问");
         }
     }
 
-    // 搜索筛选
     function filterCard(){
         const kw = document.getElementById("searchKey").value.trim().toLowerCase();
-        if(!kw){
-            stunData = {...rawData};
-        }else{
+        if(!kw){ stunData = {...rawData}; }else{
             const tmp = {};
             Object.keys(rawData).forEach(k=>{
                 if(k.toLowerCase().includes(kw)) tmp[k]=rawData[k];
@@ -264,14 +274,13 @@
         render();
     }
 
-    // 导出JSON
     function exportJson(){
-        const blob = new Blob([JSON.stringify(rawData,null,2)],{type:"application/json"});
+        const blob = new Blob([JSON.stringify(rawData, null, 2)], {type:"application/json"});
         const a = document.createElement("a");
-        a.href=URL.createObjectURL(blob);
-        a.download="stun_list.json";
+        a.href = URL.createObjectURL(blob);
+        a.download = "stun_list.json";
         a.click();
-        showToast("JSON文件已下载");
+        showToast("导出成功");
     }
 
     function checkAuth() {
@@ -356,7 +365,7 @@
                 return;
             }
             rawData = d.data || {};
-            stunData = {...rawData};
+            stunData = { ...rawData };
             render();
         } catch (e) {
             showToast("加载失败");
@@ -380,7 +389,7 @@
                 </div>
             </div>`;
         });
-        el.innerHTML = html || "<div style='grid-column:1/-1;text-align:center;padding:3rem;color:#666'>暂无数据</div>";
+        el.innerHTML = html || '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999">暂无数据</div>';
         bindEvents();
     }
 
@@ -425,7 +434,7 @@
         });
     }
 
-    function showToast(m) {
+    function showToast(m){
         const t = document.getElementById("toast");
         t.textContent = m;
         t.classList.add("show");
@@ -434,5 +443,6 @@
 
     checkAuth();
 </script>
+
 </body>
 </html>
