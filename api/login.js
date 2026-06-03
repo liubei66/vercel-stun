@@ -1,5 +1,4 @@
 import { Redis } from '@upstash/redis';
-import bcrypt from 'bcryptjs'; 
 const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
@@ -8,12 +7,10 @@ export default async function handler(req, res) {
   }
 
   const { username, password } = req.body;
-  const user = process.env.LOGIN_USER;
-  const hash = process.env.LOGIN_PWD_HASH;
+  const correctUser = process.env.LOGIN_USER;
+  const correctPwd = process.env.LOGIN_PWD;
 
-  const isPwdOk = bcrypt.compareSync(password, hash);
-
-  if (username === user && isPwdOk) {
+  if (username === correctUser && password === correctPwd) {
     return res.json({ success: true });
   }
 
