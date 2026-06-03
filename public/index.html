@@ -54,17 +54,13 @@
             cursor: pointer;
         }
 
-        .login-btn:hover {
-            background: #2563eb;
-        }
-
         #app {
             display: none;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             color: #1e293b;
             display: flex;
             justify-content: space-between;
@@ -73,7 +69,6 @@
 
         .header h1 {
             font-size: 2rem;
-            margin: 0 auto;
         }
 
         .logout {
@@ -81,6 +76,36 @@
             cursor: pointer;
             font-size: 0.95rem;
         }
+
+        /* 新增添加表单样式 */
+        .add-form {
+            background: #fff;
+            padding: 1.2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .add-form input {
+            flex:1;
+            min-width:220px;
+            padding:0.7rem;
+            border:1px solid #e2e8f0;
+            border-radius:8px;
+            font-size:0.95rem;
+        }
+        .add-btn {
+            padding:0.7rem 1.5rem;
+            background:#10b981;
+            color:#fff;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            white-space:nowrap;
+        }
+        .add-btn:hover{background:#059669;}
 
         .card-grid {
             display: grid;
@@ -96,11 +121,6 @@
             border: 1px solid #e2e8f0;
             transition: all 0.2s;
             position: relative;
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
         .card-tag {
@@ -199,7 +219,6 @@
 </head>
 
 <body>
-
     <div id="loginPanel" class="login-box">
         <h2>登录 PJK-NAS</h2>
         <input class="login-input" id="user" placeholder="用户名" />
@@ -212,6 +231,12 @@
             <h1>PJK-NAS</h1>
             <span class="logout" onclick="logout()">退出登录</span>
         </div>
+        <!-- 添加卡片表单 -->
+        <div class="add-form">
+            <input id="newKey" placeholder="名称(KEY)：如 家庭NAS">
+            <input id="newVal" placeholder="STUN地址(VALUE)：stun:xxx:3478">
+            <button class="add-btn" onclick="addItem()">新增保存</button>
+        </div>
         <div class="card-grid" id="cardGrid"></div>
     </div>
 
@@ -220,7 +245,6 @@
     <script>
         let stunData = {};
 
-        // 检查本地登录状态
         function checkAuth() {
             if (localStorage.getItem("auth") === "ok") {
                 document.getElementById("loginPanel").style.display = "none";
@@ -232,17 +256,14 @@
             }
         }
 
-        // 登录（请求后端验证环境变量）
         async function tryLogin() {
             const u = document.getElementById("user").value;
             const p = document.getElementById("pwd").value;
-
             const res = await fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: u, password: p })
             });
-
             const data = await res.json();
             if (data.success) {
                 localStorage.setItem("auth", "ok");
@@ -252,13 +273,38 @@
             }
         }
 
-        // 退出
         function logout() {
             localStorage.removeItem("auth");
             checkAuth();
         }
 
-        // 加载数据
+        // 新增保存条目
+        async function addItem(){
+            const keyInp = document.getElementById('newKey');
+            const valInp = document.getElementById('newVal');
+            const key = keyInp.value.trim();
+            const val = valInp.value.trim();
+            if(!key || !val){
+                showToast("名称和地址不能为空");
+                return;
+            }
+            // 前端直接调用update接口
+            const res = await fetch("/api/update-stun",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({key,value:val})
+            })
+            const ret = await res.json();
+            if(ret.success){
+                showToast("新增成功");
+                keyInp.value = "";
+                valInp.value = "";
+                loadData();
+            }else{
+                showToast("新增失败");
+            }
+        }
+
         async function loadData() {
             const el = document.getElementById("cardGrid");
             try {
@@ -278,7 +324,6 @@
                 el.innerHTML = "<div class='empty'>暂无数据</div>";
                 return;
             }
-
             let html = "";
             keys.forEach(k => {
                 html += `
@@ -321,7 +366,6 @@
                 b.onclick = async () => {
                     const key = b.closest(".card").dataset.key;
                     if (!confirm("确定删除？")) return;
-
                     const r = await fetch("/api/delete-stun", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
