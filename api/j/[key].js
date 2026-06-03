@@ -4,8 +4,7 @@ const redis = Redis.fromEnv();
 export default async function handler(req, res) {
   try {
     // ✅ 正确：从 /j/xxx 拿到 xxx
-    const key = req.query;
-    console.log("key: ", key);
+    const key = req.query.key;
 
     if (!key) {
       return res.status(400).send("缺少key");
