@@ -11,29 +11,25 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
             background: #f8fafc;
             padding: 2rem 1rem;
             max-width: 1000px;
             margin: 0 auto;
         }
-
         .login-box {
             max-width: 380px;
             margin: 5rem auto;
             background: white;
             padding: 2rem;
             border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-
         .login-box h2 {
             text-align: center;
             margin-bottom: 1.5rem;
             color: #1e293b;
         }
-
         .login-input {
             width: 100%;
             padding: 0.8rem 1rem;
@@ -42,7 +38,6 @@
             border-radius: 10px;
             font-size: 1rem;
         }
-
         .login-btn {
             width: 100%;
             padding: 0.8rem;
@@ -53,11 +48,7 @@
             font-size: 1rem;
             cursor: pointer;
         }
-
-        #app {
-            display: none;
-        }
-
+        #app { display: none; }
         .header {
             text-align: center;
             margin-bottom: 2rem;
@@ -66,18 +57,8 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        .header h1 {
-            font-size: 2rem;
-        }
-
-        .logout {
-            color: #ef4444;
-            cursor: pointer;
-            font-size: 0.95rem;
-        }
-
-        /* 新增添加表单样式 */
+        .header h1 { font-size: 2rem; }
+        .logout { color: #ef4444; cursor: pointer; }
         .add-form {
             background: #fff;
             padding: 1.2rem;
@@ -94,7 +75,6 @@
             padding:0.7rem;
             border:1px solid #e2e8f0;
             border-radius:8px;
-            font-size:0.95rem;
         }
         .add-btn {
             padding:0.7rem 1.5rem;
@@ -103,293 +83,209 @@
             border:none;
             border-radius:8px;
             cursor:pointer;
-            white-space:nowrap;
         }
-        .add-btn:hover{background:#059669;}
-
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.2rem;
         }
-
         .card {
             background: white;
             border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
             position: relative;
         }
-
         .card-tag {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 1rem;
         }
-
         .card-address {
             padding: 0.8rem 1rem;
             background: #f1f5f9;
             border-radius: 10px;
-            font-family: monospace;
-            word-break: break-all;
-            margin-bottom: 1rem;
             display: none;
         }
-
-        .card-address.show {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.6rem;
-        }
-
+        .card-address.show { display: block; }
+        .btn-group { display: flex; gap: 0.6rem; }
         button {
             flex: 1;
             padding: 0.6rem 0;
             border-radius: 10px;
             border: none;
-            font-weight: 500;
             cursor: pointer;
-            font-size: 0.9rem;
         }
-
-        .btn-toggle {
-            background: #e2e8f0;
-        }
-
-        .btn-copy {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-copy.copied {
-            background: #10b981;
-        }
-
+        .btn-toggle { background: #e2e8f0; }
+        .btn-copy { background: #3b82f6; color: white; }
         .btn-delete {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 26px;
-            height: 26px;
+            top: 12px; right: 12px;
+            width: 26px; height: 26px;
             border-radius: 50%;
             background: #fee2e2;
             color: #ef4444;
             border: none;
-            cursor: pointer;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .empty {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #64748b;
-            grid-column: 1/-1;
-        }
-
         .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111827;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            opacity: 0;
-            transition: 0.3s;
-            pointer-events: none;
+            position: fixed; bottom:30px; left:50%;
+            transform:translateX(-50%);
+            background:#111827; color:white;
+            padding:10px 18px; border-radius:8px;
+            opacity:0; transition:0.3s;
         }
-
-        .toast.show {
-            opacity: 1;
-        }
+        .toast.show { opacity:1; }
     </style>
 </head>
-
 <body>
-    <div id="loginPanel" class="login-box">
-        <h2>登录 PJK-NAS</h2>
-        <input class="login-input" id="user" placeholder="用户名" />
-        <input class="login-input" id="pwd" type="password" placeholder="密码" />
-        <button class="login-btn" onclick="tryLogin()">登录</button>
+
+<div id="loginPanel" class="login-box">
+    <h2>登录 PJK-NAS</h2>
+    <input class="login-input" id="user" placeholder="用户名">
+    <input class="login-input" id="pwd" type="password" placeholder="密码">
+    <button class="login-btn" onclick="tryLogin()">登录</button>
+</div>
+
+<div id="app">
+    <div class="header">
+        <h1>PJK-NAS</h1>
+        <span class="logout" onclick="logout()">退出</span>
     </div>
-
-    <div id="app">
-        <div class="header">
-            <h1>PJK-NAS</h1>
-            <span class="logout" onclick="logout()">退出登录</span>
-        </div>
-        <!-- 添加卡片表单 -->
-        <div class="add-form">
-            <input id="newKey" placeholder="名称(KEY)：如 家庭NAS">
-            <input id="newVal" placeholder="STUN地址(VALUE)：stun:xxx:3478">
-            <button class="add-btn" onclick="addItem()">新增保存</button>
-        </div>
-        <div class="card-grid" id="cardGrid"></div>
+    <div class="add-form">
+        <input id="newKey" placeholder="名称：家庭NAS">
+        <input id="newVal" placeholder="STUN地址：stun:xxx:3478">
+        <button class="add-btn" onclick="addItem()">新增保存</button>
     </div>
+    <div class="card-grid" id="cardGrid"></div>
+</div>
 
-    <div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
 
-    <script>
-        let stunData = {};
+<script>
+    let stunData = {};
+    const API_TOKEN = "你的API_TOKEN";
 
-        function checkAuth() {
-            if (localStorage.getItem("auth") === "ok") {
-                document.getElementById("loginPanel").style.display = "none";
-                document.getElementById("app").style.display = "block";
-                loadData();
-            } else {
-                document.getElementById("loginPanel").style.display = "block";
-                document.getElementById("app").style.display = "none";
-            }
+    function checkAuth() {
+        if (localStorage.getItem("auth") === "ok") {
+            document.getElementById("loginPanel").style.display = "none";
+            document.getElementById("app").style.display = "block";
+            loadData();
+        } else {
+            document.getElementById("loginPanel").style.display = "block";
+            document.getElementById("app").style.display = "none";
         }
+    }
 
-        async function tryLogin() {
-            const u = document.getElementById("user").value;
-            const p = document.getElementById("pwd").value;
-            const res = await fetch("/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: u, password: p })
-            });
-            const data = await res.json();
-            if (data.success) {
-                localStorage.setItem("auth", "ok");
-                checkAuth();
-            } else {
-                showToast("用户名或密码错误");
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem("auth");
+    async function tryLogin() {
+        const u = document.getElementById("user").value;
+        const p = document.getElementById("pwd").value;
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        if (data.success) {
+            localStorage.setItem("auth", "ok");
             checkAuth();
+        } else {
+            showToast("账号密码错误");
         }
+    }
 
-        // 新增保存条目
-        async function addItem(){
-            const keyInp = document.getElementById('newKey');
-            const valInp = document.getElementById('newVal');
-            const key = keyInp.value.trim();
-            const val = valInp.value.trim();
-            if(!key || !val){
-                showToast("名称和地址不能为空");
-                return;
-            }
-            // 前端直接调用update接口
-            const res = await fetch("/api/update-stun",{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({key,value:val})
-            })
-            const ret = await res.json();
-            if(ret.success){
-                showToast("新增成功");
-                keyInp.value = "";
-                valInp.value = "";
-                loadData();
-            }else{
-                showToast("新增失败");
-            }
-        }
-
-        async function loadData() {
-            const el = document.getElementById("cardGrid");
-            try {
-                const r = await fetch("/api/get-stun");
-                const d = await r.json();
-                stunData = d.data || {};
-                render();
-            } catch (e) {
-                el.innerHTML = "<div class='empty'>加载失败</div>";
-            }
-        }
-
-        function render() {
-            const el = document.getElementById("cardGrid");
-            const keys = Object.keys(stunData);
-            if (!keys.length) {
-                el.innerHTML = "<div class='empty'>暂无数据</div>";
-                return;
-            }
-            let html = "";
-            keys.forEach(k => {
-                html += `
-                <div class='card' data-key='${k}'>
-                    <button class='btn-delete'>×</button>
-                    <div class='card-tag'>${k}</div>
-                    <div class='card-address'>${stunData[k]}</div>
-                    <div class='btn-group'>
-                        <button class='btn-toggle'>显示地址</button>
-                        <button class='btn-copy' data-addr='${stunData[k]}'>复制地址</button>
-                    </div>
-                </div>`;
-            });
-            el.innerHTML = html;
-            bindEvents();
-        }
-
-        function bindEvents() {
-            document.querySelectorAll(".btn-toggle").forEach(b => {
-                b.onclick = () => {
-                    const addr = b.closest(".card").querySelector(".card-address");
-                    addr.classList.toggle("show");
-                    b.textContent = addr.classList.contains("show") ? "隐藏地址" : "显示地址";
-                };
-            });
-
-            document.querySelectorAll(".btn-copy").forEach(b => {
-                b.onclick = async e => {
-                    await navigator.clipboard.writeText(e.target.dataset.addr);
-                    b.textContent = "✅ 已复制";
-                    b.classList.add("copied");
-                    setTimeout(() => {
-                        b.textContent = "复制地址";
-                        b.classList.remove("copied");
-                    }, 1500);
-                };
-            });
-
-            document.querySelectorAll(".btn-delete").forEach(b => {
-                b.onclick = async () => {
-                    const key = b.closest(".card").dataset.key;
-                    if (!confirm("确定删除？")) return;
-                    const r = await fetch("/api/delete-stun", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ key })
-                    });
-                    const d = await r.json();
-                    if (d.success) {
-                        showToast("删除成功");
-                        loadData();
-                    } else {
-                        showToast("删除失败");
-                    }
-                };
-            });
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            t.textContent = msg;
-            t.classList.add("show");
-            setTimeout(() => t.classList.remove("show"), 1800);
-        }
-
+    function logout() {
+        localStorage.removeItem("auth");
         checkAuth();
-    </script>
+    }
+
+    async function addItem() {
+        const key = document.getElementById("newKey").value.trim();
+        const value = document.getElementById("newVal").value.trim();
+        if (!key || !value) return showToast("不能为空");
+
+        const res = await fetch("/api/update-stun", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": API_TOKEN
+            },
+            body: JSON.stringify({ key, value })
+        });
+        const d = await res.json();
+        if (d.success) {
+            showToast("添加成功");
+            document.getElementById("newKey").value = "";
+            document.getElementById("newVal").value = "";
+            loadData();
+        }
+    }
+
+    async function loadData() {
+        const r = await fetch("/api/get-stun");
+        const d = await r.json();
+        stunData = d.data || {};
+        render();
+    }
+
+    function render() {
+        const el = document.getElementById("cardGrid");
+        let html = "";
+        Object.keys(stunData).forEach(k => {
+            html += `
+            <div class="card" data-key="${k}">
+                <button class="btn-delete">×</button>
+                <div class="card-tag">${k}</div>
+                <div class="card-address">${stunData[k]}</div>
+                <div class="btn-group">
+                    <button class="btn-toggle">显示</button>
+                    <button class="btn-copy" data-addr="${stunData[k]}">复制</button>
+                </div>
+            </div>`;
+        });
+        el.innerHTML = html;
+        bind();
+    }
+
+    function bind() {
+        document.querySelectorAll(".btn-toggle").forEach(b => {
+            b.onclick = () => {
+                const a = b.closest(".card").querySelector(".card-address");
+                a.classList.toggle("show");
+                b.textContent = a.classList.contains("show") ? "隐藏" : "显示";
+            };
+        });
+        document.querySelectorAll(".btn-copy").forEach(b => {
+            b.onclick = async e => {
+                await navigator.clipboard.writeText(e.target.dataset.addr);
+                b.textContent = "✅ 已复制";
+                setTimeout(() => b.textContent = "复制", 1500);
+            };
+        });
+        document.querySelectorAll(".btn-delete").forEach(b => {
+            b.onclick = async () => {
+                const key = b.closest(".card").dataset.key;
+                if (!confirm("确定删除？")) return;
+                await fetch("/api/delete-stun", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": API_TOKEN
+                    },
+                    body: JSON.stringify({ key })
+                });
+                loadData();
+            };
+        });
+    }
+
+    function showToast(m) {
+        const t = document.getElementById("toast");
+        t.textContent = m;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 1800);
+    }
+
+    checkAuth();
+</script>
 </body>
 </html>
