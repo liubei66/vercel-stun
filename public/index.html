@@ -14,7 +14,7 @@
         body {
             background: #f8fafc;
             padding: 2rem 1rem;
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
         }
         .login-box {
@@ -22,8 +22,8 @@
             margin: 5rem auto;
             background: white;
             padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.07);
         }
         .login-box h2 {
             text-align: center;
@@ -37,6 +37,11 @@
             border: 1px solid #e2e8f0;
             border-radius: 10px;
             font-size: 1rem;
+            transition: border .2s;
+        }
+        .login-input:focus {
+            outline: none;
+            border-color:#3b82f6;
         }
         .login-btn {
             width: 100%;
@@ -47,22 +52,47 @@
             border-radius: 10px;
             font-size: 1rem;
             cursor: pointer;
+            transition: opacity .2s;
         }
+        .login-btn:hover{opacity:0.9}
         #app { display: none; }
         .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #1e293b;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
+            color: #1e293b;
         }
-        .header h1 { font-size: 2rem; }
+        .header h1 { font-size: 1.8rem; }
         .logout { color: #ef4444; cursor: pointer; }
+        .top-bar{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:1.2rem;
+        }
+        .search-input{
+            flex:1;
+            min-width:260px;
+            padding:0.7rem 1rem;
+            border:1px solid #e2e8f0;
+            border-radius:10px;
+            font-size:14px;
+        }
+        .export-btn{
+            padding:0 16px;
+            background:#6366f1;
+            color:#fff;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            transition:opacity .2s;
+        }
+        .export-btn:hover{opacity:0.9}
         .add-form {
             background: #fff;
             padding: 1.2rem;
-            border-radius: 16px;
+            border-radius: 18px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
             display: flex;
@@ -74,55 +104,71 @@
             min-width:220px;
             padding:0.7rem;
             border:1px solid #e2e8f0;
-            border-radius:8px;
+            border-radius:10px;
         }
         .add-btn {
-            padding:0.7rem 1.5rem;
+            padding:0 1.5rem;
             background:#10b981;
             color:#fff;
             border:none;
-            border-radius:8px;
+            border-radius:10px;
             cursor:pointer;
+            transition:opacity .2s;
         }
+        .add-btn:hover{opacity:0.9}
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.2rem;
+            gap: 1.4rem;
         }
         .card {
             background: white;
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 1.5rem;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
             position: relative;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
         .card-tag {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 1rem;
+            color:#1e293b;
         }
         .card-address {
             padding: 0.8rem 1rem;
             background: #f1f5f9;
-            border-radius: 10px;
-            display: none;
+            border-radius: 12px;
+            max-height:0;
+            overflow:hidden;
             word-break: break-all;
+            transition: max-height 0.35s ease;
+            margin-bottom:1rem;
         }
-        .card-address.show { display: block; }
-        .btn-group { display: flex; gap: 0.6rem; }
+        .card-address.show {
+            max-height:300px;
+        }
+        .btn-group { display: flex; gap: 0.55rem; }
         button {
             flex: 1;
-            padding: 0.6rem 0;
+            padding: 0.65rem 0;
             border-radius: 10px;
             border: none;
             cursor: pointer;
+            transition: opacity .2s;
         }
-        .btn-toggle { background: #e2e8f0; }
+        button:hover{opacity:0.88}
+        .btn-toggle { background: #e2e8f0; color:#333; }
+        .btn-go { background: #10b981; color: #fff; }
         .btn-copy { background: #3b82f6; color: white; }
         .btn-delete {
             position: absolute;
-            top: 12px; right: 12px;
-            width: 26px; height: 26px;
+            top: 14px; right: 14px;
+            width: 28px; height: 28px;
             border-radius: 50%;
             background: #fee2e2;
             color: #ef4444;
@@ -130,12 +176,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding:0;
         }
         .toast {
             position: fixed; bottom:30px; left:50%;
             transform:translateX(-50%);
             background:#111827; color:white;
-            padding:10px 18px; border-radius:8px;
+            padding:10px 20px; border-radius:10px;
             opacity:0; transition:0.3s;
             z-index: 999;
         }
@@ -153,12 +200,16 @@
 
 <div id="app">
     <div class="header">
-        <h1>PJK-NAS 管理</h1>
+        <h1>PJK-NAS 管理面板</h1>
         <span class="logout" onclick="logout()">退出登录</span>
+    </div>
+    <div class="top-bar">
+        <input class="search-input" id="searchKey" placeholder="搜索名称，实时筛选卡片" oninput="filterCard()">
+        <button class="export-btn" onclick="exportJson()">导出全部JSON</button>
     </div>
     <div class="add-form">
         <input id="newKey" placeholder="名称：家庭NAS">
-        <input id="newVal" placeholder="STUN地址：stun:xxx:3478">
+        <input id="newVal" placeholder="STUN/URL地址">
         <button class="add-btn" onclick="addItem()">新增保存</button>
     </div>
     <div class="card-grid" id="cardGrid"></div>
@@ -168,10 +219,59 @@
 
 <script>
     let stunData = {};
+    let rawData = {};
 
     // 获取登录 token
     function getToken() {
         return localStorage.getItem("nas_token") || "";
+    }
+
+    // URL校验
+    function isValidUrl(string) {
+        try {
+            const url = new URL(string);
+            return url.protocol === "http:" || url.protocol === "https:";
+        } catch (_) {
+            return false;
+        }
+    }
+
+    // 访问按钮逻辑
+    function goToAddress(addr) {
+        if (!addr) {
+            showToast("地址为空");
+            return;
+        }
+        if (isValidUrl(addr)) {
+            window.open(addr, "_blank");
+        } else {
+            showToast("非http/https有效链接，无法访问");
+        }
+    }
+
+    // 搜索筛选
+    function filterCard(){
+        const kw = document.getElementById("searchKey").value.trim().toLowerCase();
+        if(!kw){
+            stunData = {...rawData};
+        }else{
+            const tmp = {};
+            Object.keys(rawData).forEach(k=>{
+                if(k.toLowerCase().includes(kw)) tmp[k]=rawData[k];
+            })
+            stunData = tmp;
+        }
+        render();
+    }
+
+    // 导出JSON
+    function exportJson(){
+        const blob = new Blob([JSON.stringify(rawData,null,2)],{type:"application/json"});
+        const a = document.createElement("a");
+        a.href=URL.createObjectURL(blob);
+        a.download="stun_list.json";
+        a.click();
+        showToast("JSON文件已下载");
     }
 
     function checkAuth() {
@@ -255,7 +355,8 @@
                 logout();
                 return;
             }
-            stunData = d.data || {};
+            rawData = d.data || {};
+            stunData = {...rawData};
             render();
         } catch (e) {
             showToast("加载失败");
@@ -266,18 +367,20 @@
         const el = document.getElementById("cardGrid");
         let html = "";
         Object.keys(stunData).forEach(k => {
+            const addr = stunData[k];
             html += `
             <div class="card" data-key="${k}">
                 <button class="btn-delete">×</button>
                 <div class="card-tag">${k}</div>
-                <div class="card-address">${stunData[k]}</div>
+                <div class="card-address">${addr}</div>
                 <div class="btn-group">
                     <button class="btn-toggle">显示</button>
-                    <button class="btn-copy" data-addr="${stunData[k]}">复制</button>
+                    <button class="btn-go" onclick="goToAddress('${addr.replace(/'/g, "\\'")}')">访问</button>
+                    <button class="btn-copy" data-addr="${addr}">复制</button>
                 </div>
             </div>`;
         });
-        el.innerHTML = html || "<div style='grid-column:1/-1;text-align:center;padding:2rem;color:#888'>暂无记录</div>";
+        el.innerHTML = html || "<div style='grid-column:1/-1;text-align:center;padding:3rem;color:#666'>暂无数据</div>";
         bindEvents();
     }
 
@@ -302,7 +405,7 @@
 
         document.querySelectorAll(".btn-delete").forEach(b => {
             b.onclick = async () => {
-                if (!confirm("确定删除？")) return;
+                if (!confirm("确定删除本条记录？")) return;
                 const key = b.closest(".card").dataset.key;
                 try {
                     await fetch("/api/delete-stun", {
