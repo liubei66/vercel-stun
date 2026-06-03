@@ -1,7 +1,5 @@
 {
-  "name": "pjk-nas-stun",
-  "version": "1.0.0",
   "dependencies": {
-    "@upstash/redis": "^1.34.3"
+    "@upstash/redis": "^1.30.0"
   }
 }
